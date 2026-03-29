@@ -1,52 +1,54 @@
 [Header]
 Magic       -> "CYNB"   ; Cynex bytecode identifier, bytes: 43 59 4E 42
-Version     -> 0x01     ; Bytecode version 1, byte: 01
-Flags       -> 0xS0     ; Signing flag, unsigned, byte: 00
-Code size   -> 0x0A     ; Number of bytecode bytes (aka size). 10 bytes would be: 0x0A,0x00,0x00,0x00
+Version     -> 0x02     ; Bytecode version 2, byte: 02
+Flags       -> 0xBF     ; Flags: unsigned (0xBF), signed would be 0xEC
+Code size   -> 0x0F     ; Number of bytecode bytes (aka size). 15 bytes: 0x0F,0x00,0x00,0x00
+ConstCount  -> 0x02     ; Number of constants in the pool, byte: 02
 
 [Constant Pool]
 0x02 0x06 "Hello "      ; Type=string(0x02), Length=6 bytes, Data="Hello ", bytes: 02 06 48 65 6C 6C 6F 20
 0x02 0x06 "World!"      ; Type=string(0x02), Length=6 bytes, Data="World!", bytes: 02 06 57 6F 72 6C 64 21
 
 [Variables]
-0 -> partial             ; Variable 0 stores "Hello "
-1 -> partialend          ; Variable 1 stores "World!"
+0 -> var0                ; Variable 0 stores "Hello "
+1 -> var1                ; Variable 1 stores "World!"
 
 [Bytecode]
-LOAD_CONST 0             ; Push constant 0 ("Hello ") onto the stack, bytes: 01 00
-STORE_VAR 0              ; Pop stack and store in variable 0, bytes: 02 00
-LOAD_CONST 1             ; Push constant 1 ("World!") onto the stack, bytes: 01 01
-STORE_VAR 1              ; Pop stack and store in variable 1, bytes: 02 01
-LOAD_VAR 0               ; Push variable 0 onto the stack, bytes: 03 00
-LOAD_VAR 1               ; Push variable 1 onto the stack, bytes: 03 01
-CONCAT                   ; Pop top two stack values, concatenate, push result, byte: 05
+LOAD_CONST 0             ; Push constant 0 ("Hello ") onto stack, bytes: 01 00
+STORE_VAR 0              ; Pop stack into variable 0, bytes: 02 00
+LOAD_CONST 1             ; Push constant 1 ("World!") onto stack, bytes: 01 01
+STORE_VAR 1              ; Pop stack into variable 1, bytes: 02 01
+LOAD_VAR 0               ; Push variable 0 onto stack, bytes: 03 00
+LOAD_VAR 1               ; Push variable 1 onto stack, bytes: 03 01
+CONCAT                   ; Pop top two values, concatenate, push result, byte: 05
 PRINT                    ; Pop top of stack and print, byte: 04
 HALT                     ; Stop execution, byte: FF
 
 [Optional Debug Info]
-(none)                   ; Reserved for source mapping, line numbers, etc.
+(none)                   ; Reserved for line numbers, source mapping, etc.
 
 [Signature]
-(none)                   ; Flags=0xS0, unsigned. If 0xS1, a cryptographic signature would follow.
+(none)                   ; Flags=0xBF, unsigned. If 0xEC, a cryptographic signature would follow.
 
 [File Hex Example]
-00000000  43 59 4E 42 01 00 0A 00 00 00 02 06 48 65 6C 6C
-00000010  6F 20 02 06 57 6F 72 6C 64 21 01 00 02 00 01 01
-00000020  02 01 03 00 03 01 05 04 FF
+00000000  43 59 4E 42 02 BF 0F 00 00 00 02 02 06 48 65 6C
+00000010  6C 6F 20 02 06 57 6F 72 6C 64 21 01 00 02 00 01
+00000020  01 02 01 03 00 03 01 05 04 FF
 
 ; Explanation of Hex:
-; 43 59 4E 42        -> "CYNB" magic
-; 01                 -> Version 1
-; 00                 -> Flags = unsigned
-; 0A 00 00 00        -> Code size = 10 bytes
+; 43 59 4E 42       -> "CYNB" magic
+; 02                -> Version 2
+; BF                -> Flags unsigned
+; 0F 00 00 00       -> Code size = 15 bytes
+; 02                 -> ConstCount = 2
 ; 02 06 48 65 6C 6C 6F 20 -> Constant 0: "Hello "
 ; 02 06 57 6F 72 6C 64 21 -> Constant 1: "World!"
-; 01 00              -> LOAD_CONST 0
-; 02 00              -> STORE_VAR 0
-; 01 01              -> LOAD_CONST 1
-; 02 01              -> STORE_VAR 1
-; 03 00              -> LOAD_VAR 0
-; 03 01              -> LOAD_VAR 1
-; 05                 -> CONCAT
-; 04                 -> PRINT
-; FF                 -> HALT
+; 01 00             -> LOAD_CONST 0
+; 02 00             -> STORE_VAR 0
+; 01 01             -> LOAD_CONST 1
+; 02 01             -> STORE_VAR 1
+; 03 00             -> LOAD_VAR 0
+; 03 01             -> LOAD_VAR 1
+; 05                -> CONCAT
+; 04                -> PRINT
+; FF                -> HALT
