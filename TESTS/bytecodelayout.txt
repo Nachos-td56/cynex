@@ -1,7 +1,7 @@
 [Header]
 Magic       -> "CYNB"
 Version     -> 0x01
-Flags       -> 0xS0
+Flags       -> 0xS0 (means unsigned, 0xS1 means signing was used)
 Code size   -> <number of bytecode bytes>
 
 [Constant Pool]
