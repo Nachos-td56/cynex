@@ -24,9 +24,9 @@ int main() {
     // --- Bytecode ---
     uint8_t bytecode[] = {
         0x01, 0x00, // LOAD_CONST 0
-        0x02, 0x00, // STORE_VAR 0 (partial)
+        0x02, 0x00, // STORE_VAR 0 (partial variable (Hello )
         0x01, 0x01, // LOAD_CONST 1
-        0x02, 0x01, // STORE_VAR 1 (partialend)
+        0x02, 0x01, // STORE_VAR 1 (partialend variable (World!)
         0x03, 0x00, // LOAD_VAR 0
         0x03, 0x01, // LOAD_VAR 1
         0x05,       // CONCAT top two stack values
