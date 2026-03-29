@@ -8,7 +8,7 @@ int main() {
     // --- Header (NOW 11 BYTES) ---
     uint8_t header[] = {
         'C','Y','N','B',        // Magic
-        0x01,                   // Version
+        0x02,                   // Version
         0x00,                   // Flags (0xS0 unsigned)
         0x0A,0x00,0x00,0x00,    // Code size = 10 bytes
         0x02                    // ConstCount = 2  <-- NEW
