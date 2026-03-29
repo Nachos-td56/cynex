@@ -3,7 +3,7 @@ Cynex is a programming language that is currently in early stage development.
 
 
 > [!NOTE]
-> Cynex has entered ALPHA stage, expect bugs, you may as well expect Cynex to not even work at this stage. If you discover any, other then the obvious bugs, create a pull/issue.
+> Cynex has entered ALPHA stage, expect bugs, you may as well expect Cynex to not even work at this stage. If you discover any bugs, other then the obvious bugs, create a pull/issue.
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
