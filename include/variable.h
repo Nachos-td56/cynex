@@ -12,8 +12,8 @@ typedef struct {
     int used;
 } VarEntry;
 
-extern VarEntry vars[MAX_VARS];   // if you keep it global for now
-// (later you can hide it and only expose functions)
+extern VarEntry vars[MAX_VARS];   // if we want to keep it global for now, which is currently a yes
+// (later we can hide it and only expose functions)
 
 VarEntry* find_var(const char* name);
 VarEntry* create_var(const char* name);
