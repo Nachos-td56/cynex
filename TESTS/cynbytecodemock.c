@@ -2,14 +2,14 @@
 #include <stdint.h>
 
 int main() {
-    FILE* f = fopen("concat_example.cynb", "wb");
+    FILE *f = fopen("concat_example.cynb", "wb");
     if (!f) return 1;
 
     // --- Header ---
     uint8_t header[] = {
         'C','Y','N','B',   // Magic
         0x01,              // Version
-        0x00,              // Flags
+        0x00,              // Flags = 0xS0 (unsigned)
         0x0A,0x00,0x00,0x00 // Code size = 10 bytes
     };
     fwrite(header, 1, sizeof(header), f);
@@ -24,9 +24,9 @@ int main() {
     // --- Bytecode ---
     uint8_t bytecode[] = {
         0x01, 0x00, // LOAD_CONST 0
-        0x02, 0x00, // STORE_VAR 0 (partial variable (Hello )
+        0x02, 0x00, // STORE_VAR 0 (partial)
         0x01, 0x01, // LOAD_CONST 1
-        0x02, 0x01, // STORE_VAR 1 (partialend variable (World!)
+        0x02, 0x01, // STORE_VAR 1 (partialend)
         0x03, 0x00, // LOAD_VAR 0
         0x03, 0x01, // LOAD_VAR 1
         0x05,       // CONCAT top two stack values
