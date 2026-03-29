@@ -9,8 +9,8 @@ int main() {
     uint8_t header[] = {
         'C','Y','N','B',        // Magic
         0x02,                   // Version
-        0x00,                   // Flags (0xS0 unsigned)
-        0x0A,0x00,0x00,0x00,    // Code size = 10 bytes
+        0xBF,                   // Flags (0xBF unsigned, 0xEC signed)
+        0x0F,0x00,0x00,0x00,    // Code size = 15 bytes
         0x02                    // ConstCount = 2  <-- NEW
     };
     fwrite(header, 1, sizeof(header), f);
