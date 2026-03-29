@@ -1,0 +1,26 @@
+[Header]
+Magic       -> "CYNB"
+Version     -> 0x01
+Flags       -> 0xS0
+Code size   -> <number of bytecode bytes>
+
+[Constant Pool]
+0x02 0x06 "Hello "
+0x02 0x06 "World!"
+
+[Bytecode]
+LOAD_CONST 0
+STORE_VAR 0
+LOAD_CONST 1
+STORE_VAR 1
+LOAD_VAR 0
+LOAD_VAR 1
+CONCAT
+PRINT
+HALT
+
+[Optional Debug Info]
+(none for now)
+
+[Signature]
+(not included yet, because flags = 0xS0)
