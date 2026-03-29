@@ -28,7 +28,7 @@ static int execute_line(const char* line) {
 void repl_run(void) {
     char line[LINE_MAX];
 
-    printf("Cynex v0.15 REPL\nType 'exit' to quit.\n");
+    printf("Cynex v0.16 REPL\nType 'exit' to quit.\n");
 
     while (1) {
         printf("> ");
