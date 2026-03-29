@@ -119,32 +119,45 @@ Value parse_primary(Parser* p, int* printed) {
         name[MAX_NAME - 1] = '\0';
         lexer_next(&p->lx);
 
-        // Special constants — check FIRST
+        /* Special constants — check FIRST */
         if (strcmp(name, "true") == 0)  return make_number(1);
         if (strcmp(name, "false") == 0) return make_number(0);
 
-        // Built-in print(...)
-        if (strcmp(name, "print") == 0 && accept(p, T_LPAREN)) {
-            int first = 1;
-            while (p->lx.cur.type != T_RPAREN && p->lx.cur.type != T_EOF) {
-                Value arg = parse_concat(p, printed);
-                if (!first) printf(" ");
-                first = 0;
+        /* Built-in print(...) */
+        if (strcmp(name, "print") == 0) {
+            if (accept(p, T_LPAREN)) {
+                int first = 1;
+                char output[LINE_MAX * 2] = { 0 };   // simple fixed buffer (plenty for early development)
 
-                char* s = value_to_cstring(&arg);
-                printf("%s", s ? s : "");
-                free(s);
+                while (p->lx.cur.type != T_RPAREN && p->lx.cur.type != T_EOF) {
+                    Value arg = parse_concat(p, printed);
+                    if (!first) strcat(output, " ");
+                    first = 0;
 
-                free_value(&arg);
-                accept(p, T_COMMA);
+                    char* s = value_to_cstring(&arg);
+                    if (s) {
+                        strcat(output, s);
+                        free(s);
+                    }
+                    free_value(&arg);
+                    accept(p, T_COMMA);
+                }
+
+                if (expect(p, T_RPAREN, "expected ')' after print arguments")) {
+                    printf("%s\n", output);        // only print if ) was present
+                    if (printed) *printed = 1;
+                }
+                // else: syntax error already shown, NO output printed
+                return make_string("");
             }
-            expect(p, T_RPAREN, "expected ')' after print arguments");
-            printf("\n");
-            if (printed) *printed = 1;
-            return make_string("");   // silent return (less visible on error)
+            else {
+                // bare "print" with no ( )
+                fprintf(stderr, "Parse error: expected '(' after print\n");
+                return make_string("");
+            }
         }
 
-        // Normal variable
+        /* Normal variable */
         VarEntry* v = find_var(name);
         if (!v) {
             fprintf(stderr, "Undefined variable: %s\n", name);
@@ -171,7 +184,7 @@ Value parse_primary(Parser* p, int* printed) {
 
 /* ---------- Statement parsing (REPL entry point) ---------- */
 void parse_statement(Parser* p) {
-    // if ... then ... end
+    /* if ... then ... [else ...] end */
     if (p->lx.cur.type == T_IDENT && strcmp(p->lx.cur.text, "if") == 0) {
         lexer_next(&p->lx);
         Value cond = parse_concat(p, NULL);
@@ -186,35 +199,88 @@ void parse_statement(Parser* p) {
         lexer_next(&p->lx);
 
         int found_end = 0;
+        int in_else = 0;
         while (p->lx.cur.type != T_EOF) {
-            if (p->lx.cur.type == T_IDENT && strcmp(p->lx.cur.text, "end") == 0) {
-                lexer_next(&p->lx);
-                found_end = 1;
-                break;
+            if (p->lx.cur.type == T_IDENT) {
+                if (strcmp(p->lx.cur.text, "end") == 0) {
+                    lexer_next(&p->lx);
+                    found_end = 1;
+                    break;
+                }
+                if (strcmp(p->lx.cur.text, "else") == 0) {
+                    lexer_next(&p->lx);
+                    in_else = 1;
+                    continue;
+                }
             }
-            if (cond_val != 0) {
-                parse_statement(p);          // true branch: full recursive execution
-            } else {
-                lexer_next(&p->lx);          // false branch: just skip tokens (fast & simple)
+            if (in_else) {
+                if (cond_val == 0) parse_statement(p);   // else branch
+                else               lexer_next(&p->lx);   // skip else when true
+            }
+            else {
+                if (cond_val != 0) parse_statement(p);   // then branch
+                else               lexer_next(&p->lx);   // skip then when false
             }
         }
         if (!found_end) fprintf(stderr, "Parse error: expected 'end' for if\n");
         return;
     }
 
-    // Assignment: name = expr
+    /* local / string / int / float / bool declaration  (checked FIRST) */
+    if (p->lx.cur.type == T_IDENT &&
+        (strcmp(p->lx.cur.text, "local") == 0 ||
+            strcmp(p->lx.cur.text, "string") == 0 ||
+            strcmp(p->lx.cur.text, "int") == 0 ||
+            strcmp(p->lx.cur.text, "float") == 0 ||
+            strcmp(p->lx.cur.text, "bool") == 0)) {
+
+        char decl_kw[MAX_NAME];
+        strncpy(decl_kw, p->lx.cur.text, MAX_NAME - 1);
+        decl_kw[MAX_NAME - 1] = '\0';
+        lexer_next(&p->lx);   // consume the keyword (string/int/etc.)
+
+        if (p->lx.cur.type != T_IDENT) {
+            fprintf(stderr, "Expected variable name\n");
+            return;
+        }
+        char name[MAX_NAME];
+        strncpy(name, p->lx.cur.text, MAX_NAME - 1);
+        name[MAX_NAME - 1] = '\0';
+        lexer_next(&p->lx);
+
+        Value val = make_number(0);
+        if (accept(p, T_ASSIGN)) {
+            val = parse_concat(p, NULL);
+        }
+        else if (strcmp(decl_kw, "string") == 0) {
+            val = make_string("");   // string defaults to empty string
+        }
+        // int / float / bool / local default to 0 (number)
+
+        VarEntry* v = create_var(name);
+        if (v) {
+            free_value(&v->value);
+            v->value = val;
+        }
+        else free_value(&val);
+        return;
+    }
+
+    // Assignment: name = expr   (with proper peek that restores lexer position)
     if (p->lx.cur.type == T_IDENT) {
         char name[MAX_NAME];
         strncpy(name, p->lx.cur.text, MAX_NAME - 1);
         name[MAX_NAME - 1] = '\0';
 
-        Token saved = p->lx.cur;  // save token state
+        size_t saved_pos = p->lx.pos;   // backup lexer position!
+        Token saved = p->lx.cur;        // backup token
+
         lexer_next(&p->lx);
 
         if (p->lx.cur.type == T_ASSIGN) {
             lexer_next(&p->lx);  // consume =
 
-            // Protect true/false constants
+            /* Protect true/false constants */
             if (strcmp(name, "true") == 0 || strcmp(name, "false") == 0) {
                 fprintf(stderr, "Parse error: cannot assign to constant '%s'\n", name);
                 Value dummy = parse_concat(p, NULL);
@@ -244,50 +310,12 @@ void parse_statement(Parser* p) {
             return;
         }
 
-        // Not an assignment -> restore token so expression / other rules can see it
+        // Not assignment -> fully restore lexer state (critical fix!)
+        p->lx.pos = saved_pos;
         p->lx.cur = saved;
     }
 
-    // local / string / int / float / bool declaration
-    if (p->lx.cur.type == T_IDENT &&
-        (strcmp(p->lx.cur.text, "local") == 0 ||
-         strcmp(p->lx.cur.text, "string") == 0 ||
-         strcmp(p->lx.cur.text, "int") == 0 ||
-         strcmp(p->lx.cur.text, "float") == 0 ||
-         strcmp(p->lx.cur.text, "bool") == 0)) {
-
-        char decl_kw[MAX_NAME];
-        strncpy(decl_kw, p->lx.cur.text, MAX_NAME - 1);
-        decl_kw[MAX_NAME - 1] = '\0';
-        lexer_next(&p->lx);
-
-        if (p->lx.cur.type != T_IDENT) {
-            fprintf(stderr, "Expected variable name\n");
-            return;
-        }
-        char name[MAX_NAME];
-        strncpy(name, p->lx.cur.text, MAX_NAME - 1);
-        name[MAX_NAME - 1] = '\0';
-        lexer_next(&p->lx);
-
-        Value val = make_number(0);
-        if (accept(p, T_ASSIGN)) {
-            val = parse_concat(p, NULL);
-        } else if (strcmp(decl_kw, "string") == 0) {
-            val = make_string("");   // string defaults to empty string
-        }
-        // int / float / bool / local default to 0 (number)
-
-        VarEntry* v = create_var(name);
-        if (v) {
-            free_value(&v->value);
-            v->value = val;
-        }
-        else free_value(&val);
-        return;
-    }
-
-    // Bare expression - auto-print result if not already printed by print()
+    /* Bare expression - auto-print result if not already printed by print() */
     int printed = 0;
     Value result = parse_concat(p, &printed);
     if (!printed) {
@@ -298,9 +326,4 @@ void parse_statement(Parser* p) {
         free(s);
     }
     free_value(&result);
-
-    // Eat any leftover tokens to avoid getting stuck
-    while (p->lx.cur.type != T_EOF && p->lx.cur.type != '\n' && p->lx.cur.type != T_UNKNOWN) {
-        lexer_next(&p->lx);
-    }
 }
