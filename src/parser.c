@@ -119,7 +119,7 @@ Value parse_primary(Parser* p, int* printed) {
         name[MAX_NAME - 1] = '\0';
         lexer_next(&p->lx);
 
-        /* Special constants — check FIRST */
+        /* Special constants - check FIRST */
         if (strcmp(name, "true") == 0)  return make_number(1);
         if (strcmp(name, "false") == 0) return make_number(0);
 
@@ -245,7 +245,7 @@ void parse_statement(Parser* p) {
             return;
         }
 
-        // Not an assignment → restore token so expression / other rules can see it
+        // Not an assignment -> restore token so expression / other rules can see it
         p->lx.cur = saved;
     }
 
@@ -276,7 +276,7 @@ void parse_statement(Parser* p) {
         return;
     }
 
-    /* Bare expression — auto-print result if not already printed by print() */
+    /* Bare expression - auto-print result if not already printed by print() */
     int printed = 0;
     Value result = parse_concat(p, &printed);
     if (!printed) {
