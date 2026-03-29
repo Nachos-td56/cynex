@@ -8,5 +8,6 @@ int main(void) {
     repl_run();
     free_all_variables();
     printf("Goodbye!\n");
+    Sleep(500);
     return 0;
 }
