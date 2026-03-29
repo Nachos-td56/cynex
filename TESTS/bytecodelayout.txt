@@ -1,26 +1,54 @@
 [Header]
-Magic       -> "CYNB" (cynex bytecode identifier)
-Version     -> 0x01 (means version 1, 2, 3, and so on)
-Flags       -> 0xS0 (means unsigned, 0xS1 means signing was used)
-Code size   -> <number of bytecode bytes>
+Magic       -> "CYNB"        ; 4 bytes, identifies Cynex bytecode
+Version     -> 0x01          ; 1 byte, bytecode version
+Flags       -> 0xS0          ; 1 byte, signing flag (0xS0 = unsigned)
+Code size   -> 0x0A           ; 1 byte (or 4 bytes if larger code), total bytecode length
+
+---
 
 [Constant Pool]
-0x02 0x06 "Hello "
-0x02 0x06 "World!"
+0x02 0x06 "Hello "    ; Type=string(0x02), Length=6, Data="Hello "
+0x02 0x06 "World!"    ; Type=string(0x02), Length=6, Data="World!"
+
+*Compact*: Each constant is just `[type][length][data]`, no padding.
+
+---
+
+[Variables]
+0 -> partial          ; variable 0 stores "Hello "
+1 -> partialend       ; variable 1 stores "World!"
+
+*Compact*: variables are indexed by small integers for fast access.
+
+---
 
 [Bytecode]
-LOAD_CONST 0
-STORE_VAR 0
-LOAD_CONST 1
-STORE_VAR 1
-LOAD_VAR 0
-LOAD_VAR 1
-CONCAT
-PRINT
-HALT
+0x01 0x00  ; LOAD_CONST 0      ; push constant 0 ("Hello ") to stack
+0x02 0x00  ; STORE_VAR 0       ; pop stack and store in variable 0 (partial)
+0x01 0x01  ; LOAD_CONST 1      ; push constant 1 ("World!") to stack
+0x02 0x01  ; STORE_VAR 1       ; pop stack and store in variable 1 (partialend)
+0x03 0x00  ; LOAD_VAR 0        ; push variable 0 onto stack
+0x03 0x01  ; LOAD_VAR 1        ; push variable 1 onto stack
+0x05       ; CONCAT            ; pop top 2 strings, concatenate, push result
+0x04       ; PRINT             ; pop top of stack and print
+0xFF       ; HALT              ; stop execution
+
+*Compact*: Each instruction is 1 opcode byte + optional operand byte; stack-based VM.
+
+---
 
 [Optional Debug Info]
-(none for now)
+(none) ; reserved for future source mapping, line numbers, etc.
+
+---
 
 [Signature]
-(not included yet, because flags = 0xS0, and we dont need it as of now)
+(none) ; flags=0xS0, unsigned; if flags=0xS1, would append cryptographic signature
+
+---
+
+[File Hex Example]
+43 59 4E 42 01 00 0A        ; Header: magic + version + flags + code size
+02 06 48 65 6C 6C 6F 20     ; Constant 0: "Hello "
+02 06 57 6F 72 6C 64 21     ; Constant 1: "World!"
+01 00 02 00 01 01 02 01 03 00 03 01 05 04 FF ; Bytecode
