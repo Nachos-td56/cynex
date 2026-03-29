@@ -3,7 +3,7 @@ Cynex is a programming language that is currently in early stage development.
 
 
 > [!NOTE]
-> Cynex is being developed, but its not in the stable stage of being publicly released. Files will be uploaded one by one if they are deemed stable.
+> Cynex has entered ALPHA stage, expect bugs, you may as well expect Cynex to not even work at this stage. If you discover any, other then the obvious bugs, create a pull/issue.
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
