@@ -1,5 +1,5 @@
 [Header]
-Magic       -> "CYNB" (cynex byte code identifier)
+Magic       -> "CYNB" (cynex bytecode identifier)
 Version     -> 0x01 (means version 1, 2, 3, and so on)
 Flags       -> 0xS0 (means unsigned, 0xS1 means signing was used)
 Code size   -> <number of bytecode bytes>
