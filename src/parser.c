@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "platform.h"
 #include "parser.h"
 #include "value.h"
 #include "variable.h"
@@ -51,7 +51,7 @@ Value parse_concat(Parser* p, int* printed) {
             free(a); free(b);
             free_value(&v);
             free_value(&rhs);
-            Sleep(1000);
+            cynex_sleep(1000);
             exit(1);               // consistent with xstrdup / other allocs in Cynex
         }
 
