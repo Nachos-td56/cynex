@@ -41,9 +41,20 @@ Value parse_concat(Parser* p, int* printed) {
     while (p->lx.cur.type == T_CONCAT) {
         lexer_next(&p->lx);
         Value rhs = parse_additive(p, printed);
+
         char* a = (v.type == VAL_STRING ? strdup(v.string ? v.string : "") : value_to_cstring(&v));
         char* b = (rhs.type == VAL_STRING ? strdup(rhs.string ? rhs.string : "") : value_to_cstring(&rhs));
+
         char* cat = malloc(strlen(a) + strlen(b) + 1);
+        if (cat == NULL) {
+            fprintf(stderr, "Error: Out of memory. Cynex cannot continue and must close.\n");
+            free(a); free(b);
+            free_value(&v);
+            free_value(&rhs);
+            Sleep(1000);
+            exit(1);               // consistent with xstrdup / other allocs in Cynex
+        }
+
         strcpy(cat, a);
         strcat(cat, b);
         free(a); free(b);
@@ -315,7 +326,7 @@ void parse_statement(Parser* p) {
         p->lx.cur = saved;
     }
 
-    /* Bare expression - auto-print result if not already printed by print() */
+    // Bare expression - auto-print result if not already printed by print()
     int printed = 0;
     Value result = parse_concat(p, &printed);
     if (!printed) {
