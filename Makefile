@@ -7,7 +7,7 @@ CFLAGS = -Wall -Wextra -std=c99
 
 # Release flags
 
-RELEASE_FLAGS = -flto -Wl,-s -DNDEBUG
+RELEASE_FLAGS = -O3 -flto -Wl,-s -DNDEBUG
 
 # Debug flags
 
