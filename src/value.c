@@ -5,7 +5,7 @@
 
 #include "value.h"
 
-/* ---------- Utilities (move to common.h later if planned) ---------- */
+/* ---------- Utilities (move to common.h later if you want) ---------- */
 static char* xstrdup(const char* s) {
     if (!s) return NULL;
     size_t n = strlen(s) + 1;
