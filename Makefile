@@ -13,13 +13,16 @@ RELEASE_FLAGS = -O3 -flto -Wl,-s -DNDEBUG
 
 DEBUG_FLAGS = -g -O0 -DDEBUG
 
-SRC = main.c \
-      repl.c \
-      parser.c \
-      lexer.c \
-      variable.c \
-      value.c \
-      platform.c
+IDIR = include
+CFLAGS += -I$(IDIR)
+
+SRC = src/main.c \
+      src/repl.c \
+      src/parser.c \
+      src/lexer.c \
+      src/variable.c \
+      src/value.c \
+      src/platform.c
 
 OBJ = $(SRC:.c=.o)
 TARGET = cynex
