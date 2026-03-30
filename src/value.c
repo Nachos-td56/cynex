@@ -5,13 +5,13 @@
 
 #include "value.h"
 
-/* ---------- Utilities (move to common.h later if you want) ---------- */
+/* ---------- Utilities (may move to common.h if things get bigger) ---------- */
 static char* xstrdup(const char* s) {
     if (!s) return NULL;
     size_t n = strlen(s) + 1;
     char* r = malloc(n);
     if (!r) {
-        fprintf(stderr, "Out of memory\n");
+        fprintf(stderr, "Error: Out of memory. Cynex cannot continue and must close.\n");
         exit(1);
     }
     memcpy(r, s, n);
