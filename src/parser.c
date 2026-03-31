@@ -52,7 +52,7 @@ Value parse_concat(Parser* p, int* printed) {
             free_value(&v);
             free_value(&rhs);
             cynex_sleep(1000);
-            exit(1);               // consistent with xstrdup / other allocs in Cynex
+            exit(1);               // consistent with xstrdup / other allocs
         }
 
         strcpy(cat, a);
@@ -138,7 +138,7 @@ Value parse_primary(Parser* p, int* printed) {
         if (strcmp(name, "print") == 0) {
             if (accept(p, T_LPAREN)) {
                 int first = 1;
-                char output[LINE_MAX * 2] = { 0 };   // simple fixed buffer (plenty for early development)
+                char output[LINE_MAX * 2] = { 0 };   // simple fixed buffer (plenty for now)
 
                 while (p->lx.cur.type != T_RPAREN && p->lx.cur.type != T_EOF) {
                     Value arg = parse_concat(p, printed);

@@ -1,8 +1,8 @@
+// value.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-
 #include "value.h"
 
 /* ---------- Utilities (may move to common.h if things get bigger) ---------- */

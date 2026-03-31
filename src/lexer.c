@@ -1,8 +1,8 @@
+// lexer.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
 #include "lexer.h"
 
 static int isident_start(int c) {
@@ -27,7 +27,7 @@ void lexer_next(Lexer* lx) {
         while (lx->src[lx->pos] && lx->src[lx->pos] != '\n') {
             lx->pos++;
         }
-        return lexer_next(lx);  // recurse to get next real token
+        lexer_next(lx);          // just call it. Also recurse to get next real token
     }
 
     char c = lx->src[lx->pos];
