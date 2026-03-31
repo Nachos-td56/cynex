@@ -22,7 +22,8 @@ SRC = src/main.c \
       src/lexer.c \
       src/variable.c \
       src/value.c \
-      src/platform.c
+      src/platform.c \
+      src/CYNB/vm.c
 
 OBJ = $(SRC:.c=.o)
 TARGET = cynex
