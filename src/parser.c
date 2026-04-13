@@ -204,8 +204,7 @@ void parse_statement(Parser* p) {
     if (p->lx.cur.type == T_IDENT && strcmp(p->lx.cur.text, "if") == 0) {
         lexer_next(&p->lx);
         Value cond = parse_concat(p, NULL);
-        double cond_val = 0;
-        value_to_number(&cond, &cond_val);
+        int cond_truthy = is_truthy(&cond);
         free_value(&cond);
 
         if (p->lx.cur.type != T_IDENT || strcmp(p->lx.cur.text, "then") != 0) {
@@ -216,6 +215,7 @@ void parse_statement(Parser* p) {
 
         int found_end = 0;
         int in_else = 0;
+
         while (p->lx.cur.type != T_EOF) {
             if (p->lx.cur.type == T_IDENT) {
                 if (strcmp(p->lx.cur.text, "end") == 0) {
@@ -229,16 +229,29 @@ void parse_statement(Parser* p) {
                     continue;
                 }
             }
+
+            // Execute the correct branch
             if (in_else) {
-                if (cond_val == 0) parse_statement(p);   // else branch
-                else               lexer_next(&p->lx);   // skip else when true
+                if (!cond_truthy) {
+                    parse_statement(p);     // run else branch
+                }
+                else {
+                    lexer_next(&p->lx);     // skip else branch
+                }
             }
             else {
-                if (cond_val != 0) parse_statement(p);   // then branch
-                else               lexer_next(&p->lx);   // skip then when false
+                if (cond_truthy) {
+                    parse_statement(p);     // run then branch
+                }
+                else {
+                    lexer_next(&p->lx);     // skip then branch
+                }
             }
         }
-        if (!found_end) fprintf(stderr, "Parse error: expected 'end' for if\n");
+
+        if (!found_end) {
+            fprintf(stderr, "Parse error: expected 'end' for if\n");
+        }
         return;
     }
 
