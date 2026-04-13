@@ -5,7 +5,7 @@
 #include <math.h>
 #include "value.h"
 
-/* ---------- Utilities (may move to common.h if things get bigger) ---------- */
+/* ---------- Utilities ---------- */
 static char* xstrdup(const char* s) {
     if (!s) return NULL;
     size_t n = strlen(s) + 1;
@@ -80,4 +80,19 @@ Value binary_arith(Value a, Value b, char op) {
     case '/': return make_number(n1 / n2);
     default:  return make_number(0);
     }
+}
+
+/* ---------- Truthiness ---------- */
+int is_truthy(const Value* v) {
+    if (!v) return 0;
+
+    if (v->type == VAL_NUMBER) {
+        return v->number != 0.0;
+    }
+
+    if (v->type == VAL_STRING) {
+        return v->string && v->string[0] != '\0';   // empty string = false
+    }
+
+    return 1;   // future types (tables, functions...) should and will be truthy
 }
