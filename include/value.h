@@ -2,7 +2,7 @@
 #ifndef CYNEX_VALUE_H
 #define CYNEX_VALUE_H
 
-#include <stddef.h>   // for size_t (used in xstrdup)
+#include <stddef.h>
 
 typedef enum {
     VAL_NUMBER,
@@ -24,9 +24,12 @@ void free_value(Value* v);
 
 /* Conversions */
 int value_to_number(const Value* v, double* out);
-char* value_to_cstring(const Value* v);   // caller must free the result
+char* value_to_cstring(const Value* v);   // caller must free
 
 /* Operations */
 Value binary_arith(Value a, Value b, char op);
+
+/* Truthiness - (very important for if/while) */
+int is_truthy(const Value* v);
 
 #endif /* CYNEX_VALUE_H */
