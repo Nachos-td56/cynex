@@ -95,6 +95,4 @@ void repl_run(void) {
         }
         // else: still inside block then keep accumulating
     }
-
-    printf("\nGoodbye!\n");
 }
