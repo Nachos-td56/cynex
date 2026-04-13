@@ -195,6 +195,11 @@ Value parse_primary(Parser* p, int* printed) {
 
 /* ---------- Statement parsing (REPL entry point) ---------- */
 void parse_statement(Parser* p) {
+    // Skip empty statements (just newlines)
+    while (p->lx.cur.type == T_EOF && p->lx.pos == 0) {  // rough
+        return;
+    }
+
     /* if ... then ... [else ...] end */
     if (p->lx.cur.type == T_IDENT && strcmp(p->lx.cur.text, "if") == 0) {
         lexer_next(&p->lx);
